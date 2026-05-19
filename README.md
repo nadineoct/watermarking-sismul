@@ -21,16 +21,16 @@ Proyek ini mengimplementasikan teknik *digital watermarking* menggunakan metode 
 ## Struktur Folder
 ```text
 C:\Users\hp\watermarking-sismul\
-├── Hasil\               # Output eksperimen (grafik, tabel, citra ekstraksi)
-├── data\                # Citra input (host image & logo watermark)
+├── data\                             # Output eksperimen (grafik, tabel, citra ekstraksi)
+├── Hasil\                            # Citra input (host image & logo watermark)
 ├── tool\
-│   └── watermarking_analysis.ipynb  # Notebook utama eksperimen
-├── LAPORAN.md           # Draft laporan teknis
-└── README.md            # Informasi proyek
+│   └── watermarking_analysis.ipynb   # Notebook utama eksperimen
+├── Nadine Arindy Octavia_18224012_Laporan Hasil Watermarking  # Draft laporan teknis
+└── README.md                         # Informasi proyek
 ```
 
 ## Metodologi
 1. **Embedding:** Menyisipkan bit watermark ke dalam blok 3x3 pada bit ke-3 komponen citra.
-2. **Attack Simulation:** Melakukan kompresi JPEG manual dengan variasi *Quality Factor* (10-100).
+2. **Compression:** Melakukan kompresi JPEG manual dengan variasi *Quality Factor* (10-100).
 3. **Extraction:** Mengambil kembali bit watermark menggunakan sistem voting mayoritas.
 4. **Evaluation:** Menghitung nilai PSNR untuk kualitas citra dan BER untuk akurasi watermark.
