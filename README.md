@@ -6,9 +6,9 @@ NIM: **18224012**
 ```text
 watermarking-sismul/
 ├── data/                  # Foto wajah dan logo watermark (Input)
+├── Hasil/                 # Data visual hasil dari script utama
 ├── tool/                  # Script Python untuk pemrosesan
-│   └── run_experiment.py  # Script utama eksperimen
-├── hasil_deliverable/     # Hasil gambar watermark yang diekstrak (QF 100-0)
+│   └── watermarking_analysis.ipynb  # Script utama eksperimen
 └── README.md              # Dokumentasi ini
 ```
 
@@ -27,4 +27,4 @@ Project ini mengimplementasikan teknik **Digital Watermarking** menggunakan meto
    ```bash
    python tool/run_experiment.py
    ```
-4. Cek hasil ekstraksi di folder `hasil_deliverable/`.
+4. Cek hasil ekstraksi di folder `Hasil/`.
