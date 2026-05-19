@@ -1,30 +1,36 @@
-# Tugas Watermarking Sismul
-Dikerjakan oleh: **Nadine Arindy Octavia**  
-NIM: **18224012**
+# Digital Watermarking: LSB Optimization & JPEG Robustness Analysis
 
-## Struktur Project
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)
+![OpenCV](https://img.shields.io/badge/opencv-%23white.svg?style=for-the-badge&logo=opencv&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Completed-success?style=for-the-badge)
+
+Proyek ini mengimplementasikan teknik *digital watermarking* menggunakan metode **Least Significant Bit (LSB)** yang dioptimasi untuk ketahanan terhadap kompresi JPEG. Analisis difokuskan pada korelasi antara *Quality Factor* JPEG dengan integritas watermark (*Bit Error Rate*) dan kualitas visual citra (*PSNR*).
+
+## Informasi Mahasiswa
+- **Nama:** Nadine Arindy Octavia
+- **NIM:** 18224012
+- **Mata Kuliah:** Sistem Multimedia
+
+## Fitur Utama
+- **LSB Optimization:** Penggunaan Bit ke-3 dan sistem redundansi blok 3x3 untuk meningkatkan *robustness*.
+- **Majority Voting System:** Mekanisme *error correction* sederhana pada tahap ekstraksi bit.
+- **Manual JPEG Simulation:** Simulasi kompresi JPEG menggunakan *Discrete Cosine Transform* (DCT) dan kuantisasi kustom.
+- **Visualisasi Data:** Analisis blok piksel 8x8 dan perbandingan metrik performa secara otomatis.
+
+## Struktur Folder
 ```text
-watermarking-sismul/
-├── data/                  # Foto wajah dan logo watermark (Input)
-├── Hasil/                 # Data visual hasil dari script utama
-├── tool/                  # Script Python untuk pemrosesan
-│   └── watermarking_analysis.ipynb  # Script utama eksperimen
-└── README.md              # Dokumentasi ini
+C:\Users\hp\watermarking-sismul\
+├── Hasil\               # Output eksperimen (grafik, tabel, citra ekstraksi)
+├── data\                # Citra input (host image & logo watermark)
+├── tool\
+│   └── watermarking_analysis.ipynb  # Notebook utama eksperimen
+├── LAPORAN.md           # Draft laporan teknis
+└── README.md            # Informasi proyek
 ```
 
-## Deskripsi Tugas
-Project ini mengimplementasikan teknik **Digital Watermarking** menggunakan metode **Least Significant Bit (LSB)** dengan optimasi bit redundansi dan sistem voting untuk ketahanan terhadap kompresi JPEG.
-
-### Alur Kerja
-1.  **Embedding**: Menyisipkan bit logo watermark ke dalam bit ke-3 (Bit Position 3) pada kanal hijau gambar asli.
-2.  **Compression**: Simulasi kompresi JPEG manual menggunakan DCT (Discrete Cosine Transform) dengan berbagai Quality Factor (QF) dari 100 hingga 0.
-3.  **Extraction**: Mengambil kembali bit watermark dari gambar yang terkompresi menggunakan sistem voting pada blok piksel untuk meminimalkan error.
-
-## Cara Menjalankan
-1. Letakkan foto wajah Anda dengan nama `face.jpeg` di folder `data/`.
-2. Letakkan logo watermark Anda dengan nama `logo_watermark.png` di folder `data/`.
-3. Jalankan script:
-   ```bash
-   python tool/run_experiment.py
-   ```
-4. Cek hasil ekstraksi di folder `Hasil/`.
+## Metodologi
+1. **Embedding:** Menyisipkan bit watermark ke dalam blok 3x3 pada bit ke-3 komponen citra.
+2. **Attack Simulation:** Melakukan kompresi JPEG manual dengan variasi *Quality Factor* (10-100).
+3. **Extraction:** Mengambil kembali bit watermark menggunakan sistem voting mayoritas.
+4. **Evaluation:** Menghitung nilai PSNR untuk kualitas citra dan BER untuk akurasi watermark.
