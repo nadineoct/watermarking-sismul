@@ -18,9 +18,9 @@ Berikut adalah ringkasan hasil penyisipan dan ekstraksi watermark pada kondisi i
 
 ---
 
-## 🛠️ Alur Kerja Sistem (Workflow)
+## Alur Kerja Sistem
 
-Sistem ini mengikuti proses pipeline yang terbagi menjadi tahap *Embedding* dan *Extraction*. Berikut adalah penjelasan visual tiap tahap:
+Sistem ini mengikuti proses pipeline yang terbagi menjadi tahap *Embedding*, *Compressing* dan *Extraction*. Berikut adalah penjelasan visual tiap tahap:
 
 ### 1. Pre-processing & Binarization
 Watermark logo dikonversi menjadi citra biner (0 dan 1). Hal ini dilakukan untuk meminimalkan data yang disisipkan dan memungkinkan penggunaan teknik *Voting* saat ekstraksi.
@@ -60,11 +60,7 @@ Pada tahap ekstraksi, bit-bit dibaca dari posisi Bit-3. Untuk setiap blok 3x3, d
 ![Watermark Extraction Comparison](Hasil/exp1_watermark_extraction.png)
 <p align="center"><i>Hasil pemulihan watermark setelah melewati berbagai tingkat kompresi.</i></p>
 
----
-
----
-
-## 📊 Evaluasi Performa
+##  Evaluasi Performa
 
 Ketahanan sistem diuji terhadap berbagai tingkat kompresi JPEG (*Quality Factor* 10 hingga 100).
 
@@ -79,33 +75,14 @@ Metrik yang digunakan adalah **PSNR** (kualitas visual citra) dan **BER** (tingk
 <p align="center">
   <img src="Hasil/exp1_table.png" width="600">
 </p>
+Hasil visual ekstraksi watermark pada berbagai QF memperlihatkan pola degradasi yang konsisten dan dapat diamati langsung. Pada QF 100, watermark yang diekstrak tampak hampir identik dengan watermark aslinya meski terdapat sedikit noise dengan BER 0,0078. Pada QF 90 dan 80, mulai muncul derau berbentuk bintik-bintik acak yang menyebabkan sebagian detail tepi logo kabur, namun bentuk keseluruhan masih sangat jelas dikenali. Memasuki QF 70 dan 50, derau semakin menyebar dan mengaburkan detail halus, meski struktur utama watermark masih dapat terbaca dengan baik. Pada QF 30, degradasi terlihat cukup signifikan dengan banyak piksel yang salah, namun siluet keseluruhan masih bisa diidentifikasi. Pada QF 10 dengan BER 0,3384, watermark mengalami distorsi parah dan hampir tidak dapat dikenali.
 
 ![Metrics Chart](Hasil/exp1_ber_psnr_chart.png)
+Kurva BER vs Quality Factor menunjukkan tren peningkatan error yang konsisten seiring menurunnya QF, namun dengan kecepatan yang tidak seragam. Pada rentang QF 100 hingga 70, kenaikan BER relatif landai — dari 0,0078 hingga 0,1152 — mengindikasikan bahwa sistem masih mampu mempertahankan sebagian besar bit watermark meskipun kompresi semakin agresif. Lonjakan BER yang lebih tajam baru terjadi saat QF turun ke 50 dan seterusnya.
+Di sisi lain, kurva PSNR vs Quality Factor memperlihatkan penurunan yang lebih dramatis, khususnya pada transisi QF 70 ke QF 50 di mana PSNR turun dari 44,71 dB menjadi 34,54 dB — selisih sekitar 10 dB dalam satu langkah. Penurunan ini mencerminkan agresivitas kuantisasi DCT yang mulai merusak informasi pada bit-bit yang lebih tinggi, termasuk bit ke-3 tempat watermark disisipkan.
+Secara keseluruhan, sistem menunjukkan performa yang layak untuk penggunaan praktis pada QF 70 ke atas, di mana BER masih berada di bawah 12% dan watermark masih terbaca dengan jelas secara visual.
 
----
-
-## 💻 Cara Menjalankan
-
-1. **Clone Repositori:**
-   ```bash
-   git clone https://github.com/username/watermarking-sismul.git
-   cd watermarking-sismul
-   ```
-
-2. **Instalasi Dependensi:**
-   ```bash
-   pip install opencv-python numpy matplotlib scipy
-   ```
-
-3. **Jalankan Notebook:**
-   Buka `tool/watermarking_analysis.ipynb` menggunakan Jupyter Notebook atau VS Code dan jalankan semua sel secara berurutan.
-
----
-
-## 📝 Informasi Proyek
-- **Mata Kuliah:** II2240 Sistem Multimedia
-- **Teknik Utama:** Robust LSB, DCT-based JPEG Simulation, Majority Voting.
-- **Pustaka Utama:** OpenCV, NumPy, Matplotlib, SciPy.
-
----
-*Dibuat untuk tujuan edukasi dalam memahami konsep Digital Watermarking dan Kompresi Citra.*
+### Kesimpulan
+Sistem watermarking yang dibangun berhasil menyisipkan citra biner ke dalam foto wajah berwarna menggunakan metode Robust LSB dengan simulasi kompresi JPEG berbasis DCT manual. Evaluasi dilakukan dengan memvariasikan Quality Factor (QF) dari 100 hingga 10 untuk mengukur ketahanan watermark terhadap kompresi.
+Hasil pengujian menunjukkan bahwa watermark masih dapat diekstrak dengan baik pada rentang QF 70 hingga 100, di mana BER berada di bawah 12% dan bentuk watermark masih dapat dikenali secara visual. Penurunan kualitas mulai terasa signifikan pada QF 50 dengan BER 0,1582, dan semakin parah pada QF 30 meski watermark masih samar terbaca. Watermark dinyatakan tidak dapat diekstrak secara memuaskan pada QF 10, di mana BER mencapai 0,3384 (1.386 bit error) dan hasil visual watermark sudah terdistorsi parah hingga tidak dapat dikenali.
+Dengan demikian, sistem ini efektif digunakan pada kondisi kompresi JPEG dengan QF di atas 30, yang mencakup sebagian besar skenario penggunaan nyata. QF 10 menjadi batas kritis di mana kompresi terlalu agresif sehingga watermark tidak lagi dapat dipulihkan.
