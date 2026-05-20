@@ -21,39 +21,39 @@ Berikut adalah ringkasan hasil penyisipan dan ekstraksi watermark pada kondisi i
 Sistem ini mengikuti proses pipeline yang terbagi menjadi tahap *Embedding*, *Compressing* dan *Extraction*. Berikut adalah penjelasan visual tiap tahap:
 
 ### 1. Pre-processing & Binarization
-Watermark logo dikonversi menjadi citra biner (0 dan 1). Hal ini dilakukan untuk meminimalkan data yang disisipkan dan memungkinkan penggunaan teknik *Voting* saat ekstraksi.
+Watermark logo asli dikonversi ke citra biner (0 dan 1). Hal ini dilakukan untuk meminimalkan data yang disisipkan dan memungkinkan penggunaan teknik *Voting* saat ekstraksi.
 
 <p align="center">
-  <img src="Hasil/step1_binarization.png" width="500">
-  <br><i>Transformasi logo asli menjadi representasi bit biner 64x64.</i>
+  <img src="Hasil/viz/step1_actual.png" width="700">
+  <br><i>Proses transformasi logo Barbie asli: Grayscale -> Resize 64x64 -> Biner.</i>
 </p>
 
-### 2. Robust LSB Embedding
-Alih-alih menggunakan LSB standar (Bit-0), sistem ini menyisipkan data pada **Bit ke-3**. Secara visual, perubahan ini tetap tidak terdeteksi oleh mata manusia (*imperceptible*), namun memiliki ketahanan yang jauh lebih tinggi terhadap pembulatan nilai akibat kompresi JPEG.
+### 2. Robust LSB Embedding & Redundancy
+Sistem menggunakan **Bit ke-3** untuk penyisipan. Untuk meningkatkan ketahanan, setiap 1 bit watermark disebarkan ke dalam blok **3x3 piksel** (redundansi).
 
 <p align="center">
-  <img src="Hasil/step2_embedding_zoom.png" width="500">
-  <br><i>Perbandingan host original vs watermarked pada area zoom. Perbedaan tidak terlihat secara visual.</i>
+  <img src="Hasil/viz/step3_actual_pixels.png" width="700">
+  <br><i>Analisis Pixel-Level: Perubahan nilai bit pada posisi ke-3 (merah) di kanal hijau citra face.jpeg.</i>
 </p>
 
-### 3. Spatial Redundancy (3x3 Block)
-Setiap 1 bit dari watermark disebarkan ke dalam blok **3x3 piksel** pada kanal Hijau (Green) citra host. Redundansi ini berfungsi sebagai proteksi; jika satu piksel rusak akibat kompresi, bit asli masih bisa diselamatkan melalui piksel lainnya dalam blok yang sama.
+- **Kiri:** Nilai piksel asli beserta representasi binernya.
+- **Kanan:** Nilai piksel setelah disisipkan bit '1' pada posisi ke-3. Perubahan nilai desimal sangat kecil sehingga tidak kasat mata.
+
+### 3. JPEG Compression Attack (DCT Manual)
+Untuk mensimulasikan serangan nyata, citra diproses dengan algoritma kompresi JPEG manual. Proses ini membuang informasi frekuensi tinggi (detail halus) yang biasanya merusak watermark LSB standar.
 
 <p align="center">
-  <img src="Hasil/step3_redundancy_diagram.png" width="250">
-  <br><i>Skema penyebaran 1 bit watermark ke dalam 9 piksel host.</i>
+  <img src="Hasil/viz/step4_actual_dct.png" width="750">
+  <br><i>Analisis Domain Frekuensi: Transformasi blok 8x8 citra asli menjadi koefisien DCT dan hasil kuantisasinya.</i>
 </p>
 
-### 4. JPEG Compression Attack (DCT Manual)
-Citra diuji dengan kompresi JPEG yang diimplementasikan secara manual menggunakan blok 8x8 dan transformasi DCT untuk mensimulasikan pembuangan informasi frekuensi tinggi.
+### 4. Extraction & Majority Voting
+Saat ekstraksi, sistem membaca bit ke-3 dari setiap piksel dalam blok 3x3. Karena kompresi JPEG bisa mengubah nilai piksel secara acak, teknik **Majority Voting** digunakan untuk menentukan nilai bit yang paling mungkin.
 
 <p align="center">
-  <img src="Hasil/step4_dct_visualization.png" width="500">
-  <br><i>Visualisasi transformasi blok piksel dari domain spasial ke domain frekuensi (DCT).</i>
+  <img src="Hasil/viz/step5_voting.png" width="300">
+  <br><i>Logika Voting: Jika mayoritas piksel dalam blok 3x3 memiliki bit-3 bernilai 1, maka hasil ekstraksi adalah 1.</i>
 </p>
-
-### 5. Extraction & Majority Voting
-Pada tahap ekstraksi, bit-bit dibaca dari posisi Bit-3. Untuk setiap blok 3x3, dilakukan **Majority Voting** (pengambilan suara terbanyak) untuk menentukan apakah bit tersebut bernilai 0 atau 1.
 
 ![Watermark Extraction Comparison](Hasil/exp1_watermark_extraction.png)
 <p align="center"><i>Hasil pemulihan watermark setelah melewati berbagai tingkat kompresi.</i></p>
