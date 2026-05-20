@@ -8,15 +8,13 @@ Repositori ini mengimplementasikan sistem *Digital Image Watermarking* yang tang
 
 ---
 
-## 🚀 Quick Demo
+## Quick Demo
 
 Berikut adalah ringkasan hasil penyisipan dan ekstraksi watermark pada kondisi ideal:
 
 | Citra Host (Original) | Watermark Logo | Citra Ter-watermark | Hasil Ekstraksi |
 |:---:|:---:|:---:|:---:|
 | <img src="data/face.jpeg" width="200"> | <img src="data/barbie_logo.png" width="200"> | <img src="Hasil/watermarked/watermarked_BASE.png" width="200"> | <img src="Hasil/extracted/qf_experiment/extracted_qf100.png" width="200"> |
-
----
 
 ## Alur Kerja Sistem
 
