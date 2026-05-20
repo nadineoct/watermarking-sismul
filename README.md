@@ -9,7 +9,6 @@ Repositori ini mengimplementasikan sistem *Digital Image Watermarking* yang tang
 ---
 
 ## Quick Demo
-
 Berikut adalah ringkasan hasil penyisipan dan ekstraksi watermark pada kondisi ideal:
 
 | Citra Host (Original) | Watermark Logo | Citra Ter-watermark | Hasil Ekstraksi |
@@ -17,7 +16,6 @@ Berikut adalah ringkasan hasil penyisipan dan ekstraksi watermark pada kondisi i
 | <img src="data/face.jpeg" width="200"> | <img src="data/barbie_logo.png" width="200"> | <img src="Hasil/watermarked/watermarked_BASE.png" width="200"> | <img src="Hasil/extracted/qf_experiment/extracted_qf100.png" width="200"> |
 
 ## Alur Kerja Sistem
-
 Sistem ini mengikuti proses pipeline yang terbagi menjadi tahap *Embedding*, *Compressing* dan *Extraction*. Berikut adalah penjelasan visual tiap tahap:
 
 ### 1. Pre-processing & Binarization
@@ -60,13 +58,6 @@ Saat ekstraksi, sistem membaca bit ke-3 dari setiap piksel dalam blok 3x3. Karen
 
 ##  Evaluasi Performa
 
-Ketahanan sistem diuji terhadap berbagai tingkat kompresi JPEG (*Quality Factor* 10 hingga 100).
-
-### Perbandingan Ekstraksi vs QF
-Semakin rendah QF, citra akan semakin terkompresi (ukuran file mengecil), namun tingkat kesalahan ekstraksi (BER) akan meningkat.
-
-![Watermark Extraction Comparison](Hasil/exp1_watermark_extraction.png)
-
 ### Analisis Statistik
 Metrik yang digunakan adalah **PSNR** (kualitas visual citra) dan **BER** (tingkat kesalahan bit).
 
@@ -74,7 +65,6 @@ Metrik yang digunakan adalah **PSNR** (kualitas visual citra) dan **BER** (tingk
   <img src="Hasil/exp1_table.png" width="600">
 </p>
 Hasil visual ekstraksi watermark pada berbagai QF memperlihatkan pola degradasi yang konsisten dan dapat diamati langsung. Pada QF 100, watermark yang diekstrak tampak hampir identik dengan watermark aslinya meski terdapat sedikit noise dengan BER 0,0078. Pada QF 90 dan 80, mulai muncul derau berbentuk bintik-bintik acak yang menyebabkan sebagian detail tepi logo kabur, namun bentuk keseluruhan masih sangat jelas dikenali. Memasuki QF 70 dan 50, derau semakin menyebar dan mengaburkan detail halus, meski struktur utama watermark masih dapat terbaca dengan baik. Pada QF 30, degradasi terlihat cukup signifikan dengan banyak piksel yang salah, namun siluet keseluruhan masih bisa diidentifikasi. Pada QF 10 dengan BER 0,3384, watermark mengalami distorsi parah dan hampir tidak dapat dikenali.
-
 ![Metrics Chart](Hasil/exp1_ber_psnr_chart.png)
 Kurva BER vs Quality Factor menunjukkan tren peningkatan error yang konsisten seiring menurunnya QF, namun dengan kecepatan yang tidak seragam. Pada rentang QF 100 hingga 70, kenaikan BER relatif landai — dari 0,0078 hingga 0,1152 — mengindikasikan bahwa sistem masih mampu mempertahankan sebagian besar bit watermark meskipun kompresi semakin agresif. Lonjakan BER yang lebih tajam baru terjadi saat QF turun ke 50 dan seterusnya.
 Di sisi lain, kurva PSNR vs Quality Factor memperlihatkan penurunan yang lebih dramatis, khususnya pada transisi QF 70 ke QF 50 di mana PSNR turun dari 44,71 dB menjadi 34,54 dB — selisih sekitar 10 dB dalam satu langkah. Penurunan ini mencerminkan agresivitas kuantisasi DCT yang mulai merusak informasi pada bit-bit yang lebih tinggi, termasuk bit ke-3 tempat watermark disisipkan.
