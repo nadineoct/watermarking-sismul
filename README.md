@@ -20,27 +20,47 @@ Berikut adalah ringkasan hasil penyisipan dan ekstraksi watermark pada kondisi i
 
 ## 🛠️ Alur Kerja Sistem (Workflow)
 
-Sistem ini mengikuti proses pipeline yang terbagi menjadi tahap *Embedding* dan *Extraction*. Berikut adalah langkah-langkah visualnya:
-
-![Workflow Steps](Hasil/workflow_steps.png)
+Sistem ini mengikuti proses pipeline yang terbagi menjadi tahap *Embedding* dan *Extraction*. Berikut adalah penjelasan visual tiap tahap:
 
 ### 1. Pre-processing & Binarization
 Watermark logo dikonversi menjadi citra biner (0 dan 1). Hal ini dilakukan untuk meminimalkan data yang disisipkan dan memungkinkan penggunaan teknik *Voting* saat ekstraksi.
 
+<p align="center">
+  <img src="Hasil/step1_binarization.png" width="500">
+  <br><i>Transformasi logo asli menjadi representasi bit biner 64x64.</i>
+</p>
+
 ### 2. Robust LSB Embedding
 Alih-alih menggunakan LSB standar (Bit-0), sistem ini menyisipkan data pada **Bit ke-3**. Secara visual, perubahan ini tetap tidak terdeteksi oleh mata manusia (*imperceptible*), namun memiliki ketahanan yang jauh lebih tinggi terhadap pembulatan nilai akibat kompresi JPEG.
+
+<p align="center">
+  <img src="Hasil/step2_embedding_zoom.png" width="500">
+  <br><i>Perbandingan host original vs watermarked pada area zoom. Perbedaan tidak terlihat secara visual.</i>
+</p>
 
 ### 3. Spatial Redundancy (3x3 Block)
 Setiap 1 bit dari watermark disebarkan ke dalam blok **3x3 piksel** pada kanal Hijau (Green) citra host. Redundansi ini berfungsi sebagai proteksi; jika satu piksel rusak akibat kompresi, bit asli masih bisa diselamatkan melalui piksel lainnya dalam blok yang sama.
 
+<p align="center">
+  <img src="Hasil/step3_redundancy_diagram.png" width="250">
+  <br><i>Skema penyebaran 1 bit watermark ke dalam 9 piksel host.</i>
+</p>
+
 ### 4. JPEG Compression Attack (DCT Manual)
-Citra diuji dengan kompresi JPEG yang diimplementasikan secara manual:
-- **DCT 8x8:** Transformasi ke domain frekuensi.
-- **Quantization:** Pembuangan informasi detail berdasarkan *Quality Factor* (QF).
-- **IDCT:** Pengembalian ke domain spasial.
+Citra diuji dengan kompresi JPEG yang diimplementasikan secara manual menggunakan blok 8x8 dan transformasi DCT untuk mensimulasikan pembuangan informasi frekuensi tinggi.
+
+<p align="center">
+  <img src="Hasil/step4_dct_visualization.png" width="500">
+  <br><i>Visualisasi transformasi blok piksel dari domain spasial ke domain frekuensi (DCT).</i>
+</p>
 
 ### 5. Extraction & Majority Voting
 Pada tahap ekstraksi, bit-bit dibaca dari posisi Bit-3. Untuk setiap blok 3x3, dilakukan **Majority Voting** (pengambilan suara terbanyak) untuk menentukan apakah bit tersebut bernilai 0 atau 1.
+
+![Watermark Extraction Comparison](Hasil/exp1_watermark_extraction.png)
+<p align="center"><i>Hasil pemulihan watermark setelah melewati berbagai tingkat kompresi.</i></p>
+
+---
 
 ---
 
