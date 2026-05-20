@@ -1,107 +1,91 @@
-# Laporan Tugas Watermarking - II2240 Sistem Multimedia
+# Digital Image Watermarking: Robust LSB & JPEG DCT Simulation
 
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)
-![OpenCV](https://img.shields.io/badge/opencv-%23white.svg?style=for-the-badge&logo=opencv&logoColor=white)
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?style=for-the-badge&logo=jupyter&logoColor=white)](https://jupyter.org/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-Library-5C3EE8?style=for-the-badge&logo=opencv&logoColor=white)](https://opencv.org/)
 
-Repositori ini berisi laporan lengkap dan implementasi teknik *Digital Watermarking* menggunakan metode **Robust LSB (Least Significant Bit)** yang dioptimasi untuk ketahanan terhadap kompresi JPEG.
-
-## Informasi Mahasiswa
-- **Nama:** Nadine Arindy Octavia
-- **NIM:** 18224012
-- **Mata Kuliah:** II2240 Sistem Multimedia
-- **Instansi:** Institut Teknologi Bandung
+Repositori ini mengimplementasikan sistem *Digital Image Watermarking* yang tangguh menggunakan metode **Robust LSB** dan simulasi kompresi JPEG berbasis **Discrete Cosine Transform (DCT)**. Proyek ini bertujuan untuk menyisipkan identitas digital ke dalam citra secara tidak kasat mata (*invisible*) namun tetap bertahan terhadap manipulasi kompresi.
 
 ---
 
-## 1. Pendahuluan
-Dalam era digital, perlindungan hak cipta konten multimedia menjadi krusial. *Digital watermarking* hadir sebagai solusi untuk menyisipkan informasi identitas ke dalam media digital. Tantangan utama bagi metode spasial seperti LSB adalah kerentanannya terhadap manipulasi gambar, terutama kompresi *lossy* seperti JPEG.
+## 🚀 Quick Demo
 
-### Tujuan Eksperimen
-1. Mengimplementasikan algoritma LSB dengan optimasi posisi bit dan redundansi.
-2. Menganalisis korelasi antara *Quality Factor* JPEG dengan kualitas visual gambar (PSNR) dan integritas watermark (*Bit Error Rate* - BER).
+Berikut adalah ringkasan hasil penyisipan dan ekstraksi watermark pada kondisi ideal:
+
+| Citra Host (Original) | Watermark Logo | Citra Ter-watermark | Hasil Ekstraksi |
+|:---:|:---:|:---:|:---:|
+| <img src="data/face.jpeg" width="200"> | <img src="data/barbie_logo.png" width="200"> | <img src="Hasil/watermarked/watermarked_BASE.png" width="200"> | <img src="Hasil/extracted/qf_experiment/extracted_qf100.png" width="200"> |
 
 ---
 
-## 2. Alur Kerja Step-by-Step
+## 🛠️ Alur Kerja Sistem (Workflow)
 
-Berikut adalah visualisasi transformasi data dari tahap awal hingga akhir:
+Sistem ini mengikuti proses pipeline yang terbagi menjadi tahap *Embedding* dan *Extraction*. Berikut adalah langkah-langkah visualnya:
 
 ![Workflow Steps](Hasil/workflow_steps.png)
 
-### Tahap 1: Persiapan & Prapemrosesan
-Sebelum data disisipkan, dilakukan pengolahan pada citra host dan logo watermark:
-1.  **Host Image Loading:** Citra `face.jpeg` dibaca dalam format RGB.
-2.  **Watermark Binarization:** Logo `barbie_logo.png` dikonversi ke grayscale, di-*resize* ke 64x64, lalu diubah menjadi **Citra Biner** (0 dan 1) menggunakan thresholding.
-    - *Alasan:* Citra biner meminimalkan jumlah data yang harus disisipkan dan memungkinkan penggunaan teknik voting.
-3.  **Channel Selection:** Memilih **Kanal Hijau (Green)** dari citra host.
-    - *Alasan:* Kanal hijau memiliki kontribusi tertinggi pada komponen pencahayaan (Luminance) yang lebih dipertahankan saat kompresi JPEG dibanding kanal biru atau merah.
+### 1. Pre-processing & Binarization
+Watermark logo dikonversi menjadi citra biner (0 dan 1). Hal ini dilakukan untuk meminimalkan data yang disisipkan dan memungkinkan penggunaan teknik *Voting* saat ekstraksi.
 
-### Tahap 2: Proses Embedding (Penyisipan)
-Pada tahap ini, bit watermark dimasukkan ke dalam citra menggunakan metode **Robust LSB**:
-1.  **Bit-Plane Shifting:** Informasi bit disisipkan pada **bit ke-3** (LSB biasanya bit 0).
-    - *Logika:* `(pixel & ~(1 << 3)) | (bit << 3)`. Bit ke-3 lebih "tahan banting" terhadap pembulatan nilai akibat kompresi.
-2.  **Spasial Redundancy (3x3 Block):** Setiap 1 bit dari watermark disebarkan ke dalam blok **3x3 piksel** pada citra host. Jadi, 1 bit informasi diwakili oleh 9 piksel.
-    - *Hasil:* Menghasilkan `watermarked_BASE.png`. Secara visual, perubahan intensitas pada bit ke-3 sangat kecil sehingga tidak terdeteksi mata manusia.
+### 2. Robust LSB Embedding
+Alih-alih menggunakan LSB standar (Bit-0), sistem ini menyisipkan data pada **Bit ke-3**. Secara visual, perubahan ini tetap tidak terdeteksi oleh mata manusia (*imperceptible*), namun memiliki ketahanan yang jauh lebih tinggi terhadap pembulatan nilai akibat kompresi JPEG.
 
-### Tahap 3: Simulasi Kompresi JPEG (Serangan)
-Untuk menguji ketahanan, citra yang telah di-watermark "diserang" dengan kompresi JPEG manual:
-1.  **Blok 8x8:** Citra dipecah menjadi blok-blok 8x8 piksel.
-2.  **DCT (Discrete Cosine Transform):** Mengubah data piksel dari domain spasial ke domain frekuensi.
-3.  **Quantization:** Koefisien DCT dibagi dengan **Matriks Kuantisasi Standar** yang dikalikan dengan *Quality Factor* (QF). Di sinilah informasi bit rendah biasanya hilang.
-4.  **IDCT:** Mengembalikan citra ke domain spasial. Proses ini menghasilkan degradasi kualitas sesuai nilai QF yang dipilih.
+### 3. Spatial Redundancy (3x3 Block)
+Setiap 1 bit dari watermark disebarkan ke dalam blok **3x3 piksel** pada kanal Hijau (Green) citra host. Redundansi ini berfungsi sebagai proteksi; jika satu piksel rusak akibat kompresi, bit asli masih bisa diselamatkan melalui piksel lainnya dalam blok yang sama.
 
-### Tahap 4: Proses Extraction (Pengambilan Kembali)
-Tahap terakhir adalah mengambil kembali logo watermark dari citra yang sudah terkompresi:
-1.  **Reading Bit-3:** Membaca nilai bit pada posisi ke-3 di setiap piksel dalam blok 3x3.
-2.  **Majority Voting:** Melakukan "voting" pada blok 3x3 tersebut. Jika mayoritas (misal 5 dari 9 piksel) bernilai 1, maka bit watermark dianggap 1.
-    - *Keunggulan:* Jika kompresi merusak 1 atau 2 piksel dalam blok, bit asli tetap bisa diselamatkan oleh piksel lainnya.
-3.  **Reconstruction:** Menyusun kembali bit-bit hasil voting menjadi gambar logo 64x64.
+### 4. JPEG Compression Attack (DCT Manual)
+Citra diuji dengan kompresi JPEG yang diimplementasikan secara manual:
+- **DCT 8x8:** Transformasi ke domain frekuensi.
+- **Quantization:** Pembuangan informasi detail berdasarkan *Quality Factor* (QF).
+- **IDCT:** Pengembalian ke domain spasial.
+
+### 5. Extraction & Majority Voting
+Pada tahap ekstraksi, bit-bit dibaca dari posisi Bit-3. Untuk setiap blok 3x3, dilakukan **Majority Voting** (pengambilan suara terbanyak) untuk menentukan apakah bit tersebut bernilai 0 atau 1.
 
 ---
 
-## 3. Hasil Eksperimen & Analisis Visual
+## 📊 Evaluasi Performa
 
-### 3.1 Perbandingan Visual (Embedding)
-Berikut adalah perbandingan antara citra asli dan citra yang telah disisipi watermark. Secara visual (*imperceptibility*), perbedaan hampir tidak terlihat oleh mata manusia.
+Ketahanan sistem diuji terhadap berbagai tingkat kompresi JPEG (*Quality Factor* 10 hingga 100).
 
-| Citra Sebelum Watermarking | Citra Sesudah Watermarking |
-|:---:|:---:|
-| <img src="data/face.jpeg" width="350"> | <img src="Hasil/watermarked/watermarked_BASE.png" width="350"> |
-
-### 3.2 Uji Ketahanan terhadap Kompresi JPEG
-Eksperimen dilakukan dengan mengompres citra hasil watermarking menggunakan berbagai *Quality Factor* (QF), mulai dari QF 100 (kualitas terbaik) hingga QF 10 (kompresi sangat tinggi).
-
-#### Hasil Ekstraksi Watermark
-Semakin rendah nilai QF, semakin banyak informasi yang hilang, namun berkat optimasi LSB, watermark tetap dapat dikenali hingga batas tertentu.
+### Perbandingan Ekstraksi vs QF
+Semakin rendah QF, citra akan semakin terkompresi (ukuran file mengecil), namun tingkat kesalahan ekstraksi (BER) akan meningkat.
 
 ![Watermark Extraction Comparison](Hasil/exp1_watermark_extraction.png)
 
----
+### Analisis Statistik
+Metrik yang digunakan adalah **PSNR** (kualitas visual citra) dan **BER** (tingkat kesalahan bit).
 
-## 4. Analisis & Pembahasan
-
-### 4.1 Data Kuantitatif (Tabel Evaluasi)
-Analisis dilakukan menggunakan dua metrik utama:
-- **PSNR (Peak Signal-to-Noise Ratio):** Mengukur kualitas visual citra (semakin tinggi semakin baik).
-- **BER (Bit Error Rate):** Mengukur tingkat kesalahan ekstraksi watermark (semakin rendah semakin baik).
-
-![Evaluation Table](Hasil/exp1_table.png)
-
-### 4.2 Analisis Grafik Metrik
-Berdasarkan grafik di bawah, terlihat bahwa:
-- **Kurva BER:** Mengalami kenaikan landai pada rentang QF 100-70, namun melonjak tajam saat QF turun di bawah 50.
-- **Kurva PSNR:** Penurunan drastis terjadi saat transisi QF 70 ke 50, yang menunjukkan agresivitas kuantisasi DCT mulai merusak bit-bit yang lebih tinggi (termasuk bit ke-3).
+<p align="center">
+  <img src="Hasil/exp1_table.png" width="600">
+</p>
 
 ![Metrics Chart](Hasil/exp1_ber_psnr_chart.png)
 
 ---
 
-## 5. Kesimpulan
-1. Sistem watermarking berhasil menyisipkan citra biner ke dalam foto berwarna menggunakan metode **Robust LSB** dengan simulasi kompresi JPEG berbasis DCT manual.
-2. Watermark dapat diekstrak dengan sangat baik pada rentang **QF 70 hingga 100** (BER < 12%).
-3. Penurunan kualitas mulai terasa signifikan pada QF 50, dan watermark menjadi tidak terbaca (hancur) pada **QF 10**.
-4. Sistem ini efektif digunakan pada kondisi kompresi JPEG dengan QF di atas 30, yang mencakup sebagian besar skenario penggunaan nyata.
+## 💻 Cara Menjalankan
+
+1. **Clone Repositori:**
+   ```bash
+   git clone https://github.com/username/watermarking-sismul.git
+   cd watermarking-sismul
+   ```
+
+2. **Instalasi Dependensi:**
+   ```bash
+   pip install opencv-python numpy matplotlib scipy
+   ```
+
+3. **Jalankan Notebook:**
+   Buka `tool/watermarking_analysis.ipynb` menggunakan Jupyter Notebook atau VS Code dan jalankan semua sel secara berurutan.
 
 ---
-*Laporan ini disusun sebagai bagian dari tugas mata kuliah Sistem Multimedia.*
+
+## 📝 Informasi Proyek
+- **Mata Kuliah:** II2240 Sistem Multimedia
+- **Teknik Utama:** Robust LSB, DCT-based JPEG Simulation, Majority Voting.
+- **Pustaka Utama:** OpenCV, NumPy, Matplotlib, SciPy.
+
+---
+*Dibuat untuk tujuan edukasi dalam memahami konsep Digital Watermarking dan Kompresi Citra.*
